@@ -4,7 +4,7 @@
     /// Invoked during <a href="https://docs.unity3d.com/ScriptReference/MonoBehaviour.FixedUpdate.html">FixedUpdate</a>.
     /// </summary>
     /// <seealso cref="IPlayerLoopEvent"/>
-    public readonly partial struct FixedUpdateEvent : IPlayerLoopEvent
+    public partial struct FixedUpdateEvent : IPlayerLoopEvent
     {
         public FixedUpdateEvent(float deltaTime)
         {
@@ -12,6 +12,6 @@
         }
 
         /// <inheritdoc/>
-        public float DeltaTime { get; }
+        public float DeltaTime { get; internal set; }
     }
 }

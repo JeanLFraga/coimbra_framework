@@ -4,6 +4,7 @@ using Coimbra.Listeners;
 using Coimbra.Services.Events;
 using Cysharp.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -59,6 +60,10 @@ namespace Coimbra.Services.PlayerLoopEvents
         private LateUpdateListener _lateUpdateListener = null!;
 
         private UpdateListener _updateListener = null!;
+        
+        private Dictionary<Type, IPlayerLoopEvent> _playerLoopEventPool = new();
+
+        private PlayerLoopEventCache _loopEventCache = new();
 
         private PlayerLoopSystem() { }
 
@@ -252,7 +257,7 @@ namespace Coimbra.Services.PlayerLoopEvents
                 if (HasTiming(PlayerLoopTiming.FixedUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.FixedUpdate, DestroyCancellationToken);
-
+                    
                     new FirstFixedUpdateEvent(Time.deltaTime).Invoke(this);
                 }
 
@@ -275,98 +280,112 @@ namespace Coimbra.Services.PlayerLoopEvents
                 {
                     await UniTask.Yield(PlayerLoopTiming.Initialization, DestroyCancellationToken);
 
-                    new FirstInitializationEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.FirstInitializationEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.FirstInitializationEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.LastInitialization))
                 {
                     await UniTask.Yield(PlayerLoopTiming.LastInitialization, DestroyCancellationToken);
-
-                    new LastInitializationEvent(Time.deltaTime).Invoke(this);
+                    
+                    _loopEventCache.LastInitializationEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.LastInitializationEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.EarlyUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.EarlyUpdate, DestroyCancellationToken);
 
-                    new FirstEarlyUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.FirstEarlyUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.FirstEarlyUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.LastEarlyUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.LastEarlyUpdate, DestroyCancellationToken);
 
-                    new LastEarlyUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.LastEarlyUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.LastEarlyUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.PreUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.PreUpdate, DestroyCancellationToken);
 
-                    new FirstPreUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.FirstPreUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.FirstPreUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.LastPreUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.LastPreUpdate, DestroyCancellationToken);
 
-                    new LastPreUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.LastPreUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.LastPreUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.Update))
                 {
                     await UniTask.Yield(PlayerLoopTiming.Update, DestroyCancellationToken);
 
-                    new FirstUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.FirstUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.FirstUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.LastUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.LastUpdate, DestroyCancellationToken);
 
-                    new LastUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.LastUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.LastUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.PreLateUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.PreLateUpdate, DestroyCancellationToken);
 
-                    new PreLateUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.PreLateUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.PreLateUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.LastPreLateUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.LastPreLateUpdate, DestroyCancellationToken);
 
-                    new FirstPostLateUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.FirstPostLateUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.FirstPostLateUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.PostLateUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.PostLateUpdate, DestroyCancellationToken);
 
-                    new PostLateUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.PostLateUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.PostLateUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.LastPostLateUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, DestroyCancellationToken);
 
-                    new LastPostLateUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.LastPostLateUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.LastPostLateUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.TimeUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.TimeUpdate, DestroyCancellationToken);
 
-                    new PreTimeUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.PreTimeUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.PreTimeUpdateEvent.Invoke(this);
                 }
 
                 if (HasTiming(PlayerLoopTiming.LastTimeUpdate))
                 {
                     await UniTask.Yield(PlayerLoopTiming.LastTimeUpdate, DestroyCancellationToken);
 
-                    new PostTimeUpdateEvent(Time.deltaTime).Invoke(this);
+                    _loopEventCache.PostTimeUpdateEvent.DeltaTime = Time.deltaTime;
+                    _loopEventCache.PostTimeUpdateEvent.Invoke(this);
                 }
             }
             while (!DestroyCancellationToken.IsCancellationRequested && HasAnyMainUpdateTiming());
@@ -441,17 +460,20 @@ namespace Coimbra.Services.PlayerLoopEvents
 
         private void HandleFixedUpdate(PlayerLoopListenerBase sender, float deltaTime)
         {
-            new FixedUpdateEvent(deltaTime).Invoke(this);
+            _loopEventCache.FixedUpdateEvent.DeltaTime = deltaTime;
+            _loopEventCache.FixedUpdateEvent.Invoke(this);
         }
 
         private void HandleLateUpdate(PlayerLoopListenerBase sender, float deltaTime)
         {
-            new LateUpdateEvent(deltaTime).Invoke(this);
+            _loopEventCache.LateUpdateEvent.DeltaTime = deltaTime;
+            _loopEventCache.LateUpdateEvent.Invoke(this);
         }
 
         private void HandleUpdate(PlayerLoopListenerBase sender, float deltaTime)
         {
-            new UpdateEvent(deltaTime).Invoke(this);
+            _loopEventCache.UpdateEvent.DeltaTime = deltaTime;
+            _loopEventCache.UpdateEvent.Invoke(this);
         }
     }
 }

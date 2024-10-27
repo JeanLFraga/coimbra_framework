@@ -4,7 +4,7 @@
     /// Invoked during <see cref="UnityEngine.PlayerLoop.PreUpdate"/>.
     /// </summary>
     /// <seealso cref="IPlayerLoopEvent"/>
-    public readonly partial struct LastPreUpdateEvent : IPlayerLoopEvent
+    public partial struct LastPreUpdateEvent : IPlayerLoopEvent
     {
         public LastPreUpdateEvent(float deltaTime)
         {
@@ -12,6 +12,6 @@
         }
 
         /// <inheritdoc/>
-        public float DeltaTime { get; }
+        public float DeltaTime { get; internal set; }
     }
 }

@@ -4,7 +4,7 @@
     /// Invoked during <see cref="UnityEngine.PlayerLoop.Update"/>.
     /// </summary>
     /// <seealso cref="IPlayerLoopEvent"/>
-    public readonly partial struct FirstUpdateEvent : IPlayerLoopEvent
+    public partial struct FirstUpdateEvent : IPlayerLoopEvent
     {
         public FirstUpdateEvent(float deltaTime)
         {
@@ -12,6 +12,6 @@
         }
 
         /// <inheritdoc/>
-        public float DeltaTime { get; }
+        public float DeltaTime { get; internal set; }
     }
 }
