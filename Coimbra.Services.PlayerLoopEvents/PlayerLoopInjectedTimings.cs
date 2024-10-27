@@ -22,7 +22,22 @@ namespace Coimbra.Services.PlayerLoopEvents
         /// <summary>
         /// All events.
         /// </summary>
-        All = ~0,
+        All = FirstInitialization
+        | LastInitialization
+        | FirstEarlyUpdate
+        | LastEarlyUpdate
+        | FirstFixedUpdate
+        | LastFixedUpdate
+        | FirstPreUpdate
+        | LastPreUpdate
+        | FirstUpdate
+        | LastUpdate
+        | PreLateUpdate
+        | FirstPostLateUpdate
+        | PostLateUpdate
+        | LastPostLateUpdate
+        | PreTimeUpdate
+        | PostTimeUpdate,
 
         /// <summary>
         /// Common events for complex systems.
